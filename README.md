@@ -15,7 +15,7 @@ The `DQA_NSO` tool is used to run a set of queries against tables modeled in the
 1. Python3 and PIP installed locally.
 2. Ability to execute python code within a jupyter notebook.
 3. Data Modeled in the PEDSnet (OMOP) CDM within a schema in postgres.
-4. OMOP vocabulary tables available on the same database either within the same schema or a separate database.
+4. OMOP vocabulary tables available on the same database either within the same schema or a separate schema.
 
 ## Setup
 1. Under the database.ini file, enter username, password, host, and database information used to connect to your postgres database.
