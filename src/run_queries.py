@@ -5,9 +5,12 @@
 import time
 import datetime
 import os
+import csv
+import zipfile
 from jinja2 import Template
 from config.config import *
 from src.variables import *
+
 
 #Read in .sql file and use JINJA templating to pass in table name and variables from varaibles.py
 def read_and_render_sql_file(file_path, version = '', schema = '', vocab_schema = '', 
@@ -168,3 +171,49 @@ def render_and_execute_checks_on_table(version, schema, vocab_schema, table):
                     print(filter_col)
                     site_query  = read_and_render_sql_file('src/sql/top_10_unmapped_concepts.sql', version, schema,  table_name = table, column_name = src_val, filter_column_name = filter_col)
             execute_sql_file(site_query)  
+
+# Exports metrics as a zip file containing a .csv for each table
+def export_results(version):
+
+    #tables to extract
+    queries = {
+        'column_distributions' : f"select * from dqa_nso.column_distributions where version = '{version}';",
+        'column_vocabulary_distributions' : f"select * from dqa_nso.column_vocabulary_distributions where version = '{version}';",
+        'ddl_constraint_violations' : f"select * from dqa_nso.ddl_constraint_violations where version = '{version}';",
+        'table_count' : f"select * from dqa_nso.table_count where version = '{version}';",
+        'top_10_concept_ids' : f"select * from dqa_nso.top_10_concept_ids where version = '{version}';",
+        'top_10_unmapped_concepts' : f"select * from dqa_nso.top_10_unmapped_concepts where version = '{version}';"
+    }
+
+    try:
+        # extract each table and write as csv in subdirectory
+        with get_db_connection('config/database.ini') as conn:
+            os.makedirs(f'results/{version}', exist_ok=True)
+            with conn.cursor() as cur:
+                for query in queries:
+                    print(f'Extracting data from {query} table and writing to csv.')
+                    cur.execute(queries[query])
+                    rows = cur.fetchall()
+                    cols = [desc[0] for desc in cur.description]
+                    csv_path = os.path.join(f'results/{version}/', f'{query}.csv')
+                    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(cols)  # header
+                        writer.writerows(rows) 
+                
+        #zip csv contents
+        print("Zipping contents")
+        with zipfile.ZipFile(f'results/{version}.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for filename in os.listdir(f'results/{version}/'):
+                if filename.endswith('.csv'):
+                    filepath = os.path.join(f'results/{version}/', filename)
+                    zipf.write(filepath, arcname=filename)
+
+        # delete csvs
+        for filename in os.listdir(f'results/{version}/'):
+            os.remove(os.path.join(f'results/{version}/', filename))
+        os.rmdir(f'results/{version}/')
+        print("Export Complete!")
+
+    except Exception as e:
+        print(f"Error executing SQL query: {e}")
