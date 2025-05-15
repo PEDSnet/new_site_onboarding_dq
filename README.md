@@ -1,4 +1,4 @@
-# Data Quality Assesment for New Site Onboarding (DQA_NSO)
+# Data Quality Assessment for New Site Onboarding (DQA_NSO)
 
 The `DQA_NSO` tool is used to run a set of queries against tables modeled in the PEDSnet Data Model. It queries PEDSnet tables and writes the results to tables in a new schema called dqa_nso. It checks the following for input PEDSnet table:
 
