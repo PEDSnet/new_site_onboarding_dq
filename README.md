@@ -27,4 +27,7 @@ The `DQA_NSO` tool is used to run a set of queries against tables modeled in the
 	* !python3 -m pip install psycopg2-binary
 	* !python3 -m pip install jinja2
 
-4. Run cells 2 - 5 of main.ipynb to calculate results. Execution time will be dependent on how many tables you are testing as well as the size of your local data (number of patients, etc.)
+4. Run cells 2 - 4 of main.ipynb to create output tables and calculate metrics to populate the output tables. Execution time will be dependent on how many tables you are testing as well as the size of your local data (number of patients, etc.).
+
+
+5. Once step 4 is completed, run cell 5 (Export Results) to export the output metric tables as a zip file of csvs. The zip file will be named the same as the "version" you specified. Submit this output file back to the PEDSnet DCC.
