@@ -31,9 +31,9 @@ The `DQA_NSO` tool is used to run a set of queries against tables modeled in the
 
 5. Once step 4 is completed, run cell 5 (Export Results) to export the output metric tables as a zip file of csvs. The zip file will be named the same as the `version` you specified. Submit this output file back to the PEDSnet DCC.
 
-## Output Table Definitions
+# Output Table Definitions
 
-### table_count
+## table_count
  
  > Total row count for each PEDSnet table.
  > * Fields:
@@ -42,7 +42,7 @@ The `DQA_NSO` tool is used to run a set of queries against tables modeled in the
  >		* `record_count` - Total number of records in PEDSnet table.
  >
 
-### ddl_constraint_violations
+## ddl_constraint_violations
 
 > Checks all Primary Key (pk), Foreign Key (fk), and Non Null (nn) constraints defined in the DDL for each table. 
 > * Fields:
@@ -54,7 +54,7 @@ The `DQA_NSO` tool is used to run a set of queries against tables modeled in the
 > 	* `violation_percentage` - Percent of records in the table that violate the column_name's constraint. Calculated as ddl_constraint_violations.violation_count divided by table_count.record_count.
 >
 
-### column_distributions
+## column_distributions
 
 > Stratifies a PEDSnet table by a key descriptive column to get the count and percent of table for each value.
 > * Not all tables will have a field tested for column distribution.
@@ -68,7 +68,7 @@ The `DQA_NSO` tool is used to run a set of queries against tables modeled in the
 > 	* `percent_of_table` - Percent of records in the table that have this column_value_concept_id and column_value_text for the column_name. Calculated as column_distributions.record_count divided by table_count.record_count.
 >
 
-### column_vocabulary_distributions
+## column_vocabulary_distributions
 
 > For a PEDSnet table, stratifies a concept_id field by each vocabulary_id the concept_ids may belong to in the concept table.
 > * Primarily used to test correctly used Vocabularies for clinical fact tables.
@@ -82,7 +82,7 @@ The `DQA_NSO` tool is used to run a set of queries against tables modeled in the
 > 	* `percent_of_table` - Percent of records in the table that have this vocabulary_id for the column_name. Calculated as column_vocabulary_distributions.record_count divided by table_count.record_count.
 >
 
-### top_10_concept_ids
+## top_10_concept_ids
 
 > For a PEDSnet table, checks the top 10 concept_id values for a defined *_concept_id field. Also can include a different column to filter by BEFORE checking the the top 10 concept_id values.
 > * Primarily used to check plausibility of top codes used within for clinical fact tables.
@@ -99,7 +99,7 @@ The `DQA_NSO` tool is used to run a set of queries against tables modeled in the
 > 	* `record_count` - Total number of records filtered by filter_column_name = filter_column_value that have this column_value_concept_id for the column_name.
 > 	* `percent_of_table` - Percent of records filtered by filter_column_name = filter_column_value that have this column_value_concept_id for the column_name. Calculated as top_10_concept_ids.record_count divided by total number of records where filter_column_name = filter_column_value.
 
-### top_10_unmapped_concepts
+## top_10_unmapped_concepts
 
 > For a PEDSnet table, checks the top 10 source values for a defined *_source_value field where its corresponding *_concept_id field equals 0 or some flavor of NULL.
 > * Primarily used to check the top source values for unmapped concepts in order to see if a manual mapping is possible.
@@ -114,3 +114,52 @@ The `DQA_NSO` tool is used to run a set of queries against tables modeled in the
 > 	* `record_count` - Total number of records filtered by filter_column_name = 0 or some flavor of NULL that have this column_value_text for the column_name.
 > 	* `percent_of_table` - Percent of records filtered by filter_column_name = 0 or some flavor of NULL that have this column_value_text for the column_name. Calculated as top_10_concept_ids.record_count  divided by table_count.record_count.
 > 
+
+# Directory Contents
+
+## config/
+
+### config.py
+Helper functions to parse database.ini file and connect to postgres database.
+
+### database.ini
+Configuration file to enter postgres database credentials.
+
+## src/
+
+# run_queries.py
+Helper fuctions to loop through tables and (1) render .sql templates with variables, (2) execute .sql queries against the postgres database, and (3) export results to a local file.
+
+# variables.py
+Dictionary lookups for each table used to insert into the jinja templated SQL queries.
+
+# sql/
+Directory of SQL queries that are used to calculate the metrics across the Postgres Database.
+> 
+> * `create_tables.sql` - DDL to create the shell schema and output tables to insert metrics calculations.
+> 
+> * `table_count.sql` - Populates the table_count output table.
+> 
+> * `ddl_violation_fk.sql` - Populates the ddl_constraint_violations output table with Foreign Key violation check results.
+> 
+> * `ddl_violation_fk_concept.sql` - Populates the ddl_constraint_violations output table with Foreign Key violations check results against the concept vocabulary table.
+> 
+> * `ddl_violation_nn.sql` - Populates the ddl_constraint_violations output table with Non Null violations check results.
+> 
+> * `ddl_violation_pk.sql` - Populates the ddl_constraint_violations output table with Primary Key violations check results.
+> 
+> * `column_distribution.sql` - Populates the column_distributions output table.
+> 
+> * `column_vocabulary_distribution.sql` - Populates the column_vocabulary_distributions output table.
+> 
+> * `top_10_concept_id_filter.sql` - Populates the top_10_concept_ids output table if the check has a non visit_concept_id filter. 
+> 
+> * `top_10_concept_id_filter_visit.sql` - Populates the top_10_concept_ids output table if the check has a visit_concept_id filter. 
+> 
+> * `top_10_concept_id_no_filter.sql` - Populates the top_10_concept_ids output table if the check has no filter. 
+> 
+> * `top_10_unmapped_concepts.sql` - Populates the top_10_unmapped_concepts output table. 
+>
+
+## main.ipynb
+Jupyter Notebook to execute the logic within the directory
