@@ -127,13 +127,13 @@ Configuration file to enter postgres database credentials.
 
 ## src/
 
-# run_queries.py
+### run_queries.py
 Helper fuctions to loop through tables and (1) render .sql templates with variables, (2) execute .sql queries against the postgres database, and (3) export results to a local file.
 
-# variables.py
+### variables.py
 Dictionary lookups for each table used to insert into the jinja templated SQL queries.
 
-# sql/
+### sql/
 Directory of SQL queries that are used to calculate the metrics across the Postgres Database.
 > 
 > * `create_tables.sql` - DDL to create the shell schema and output tables to insert metrics calculations.
@@ -161,5 +161,5 @@ Directory of SQL queries that are used to calculate the metrics across the Postg
 > * `top_10_unmapped_concepts.sql` - Populates the top_10_unmapped_concepts output table. 
 >
 
-## main.ipynb
+### main.ipynb
 Jupyter Notebook to execute the logic within the directory
